@@ -1,0 +1,60 @@
+name: Central Validation
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+
+jobs:
+  verificar_version:
+    name: Control de Versiones
+    uses: fvalenzuela-dev/.github/.github/workflows/version-check-new.yml@main
+    with:
+      version_file: "VERSION"
+      base_branch: "main"
+    secrets:
+      GITHUB_TOKEN_CUSTOM: ${{ secrets.GITHUB_TOKEN }}
+
+  build_and_test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Run tests with coverage
+        run: pnpm vitest run --coverage --passWithNoTests
+
+      - name: Ensure coverage file exists
+        run: mkdir -p coverage && touch coverage/lcov.info
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/lcov.info
+          retention-days: 1
+
+  codacy_coverage:
+    name: Codacy Coverage
+    needs: [build_and_test]
+    uses: fvalenzuela-dev/.github/.github/workflows/codacy-coverage.yml@main
+    with:
+      coverage_report_path: "coverage/lcov.info"
+    secrets:
+      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
