@@ -1,5 +1,5 @@
 name: Reporte de bug
-description: Reportá un bug de Gentle AI
+description: Reportá un bug de Fvalenzuela
 labels: ["bug", "status:needs-review"]
 
 body:
@@ -70,9 +70,9 @@ body:
   - type: input
     id: version
     attributes:
-      label: Versión de Gentle AI
+      label: Versión de Fvalenzuela
       description: Ejecutá `gga version` para obtener este dato
-      placeholder: "ej. v0.1.0"
+      placeholder: "ej. v1.0.0"
     validations:
       required: true
 
